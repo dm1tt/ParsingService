@@ -1,5 +1,5 @@
 namespace ParsingService.ChipDipParseService;
 public interface IChipDipParseService
 {
-    public string GetProdictListHtml(string url);
+    public Task<List<string>> GetProdictListHtml(string queryMessage ,string url);
 }

@@ -4,7 +4,13 @@ using ParsingService.ChipDipParseService;
 var builder = WebApplication.CreateBuilder(args);
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello World!");
 var a = new ChipDipParseService();
-System.Console.WriteLine(a.GetProdictListHtml("микроконтроллеры"));
+var baseUrl = builder.Configuration.GetValue<string>("ChipDipGlobalSearchBaseUrl");
+app.MapGet("/", async () => 
+{
+    var result = await a.GetProdictListHtml(baseUrl!, "микроконтроллеры");
+
+    return result;
+}
+);
 app.Run();

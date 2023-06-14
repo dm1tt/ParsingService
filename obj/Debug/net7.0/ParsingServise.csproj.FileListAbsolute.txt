@@ -24,3 +24,5 @@ C:\csharpvscode\ParsingServise\obj\Debug\net7.0\refint\ParsingServise.dll
 C:\csharpvscode\ParsingServise\obj\Debug\net7.0\ParsingServise.pdb
 C:\csharpvscode\ParsingServise\obj\Debug\net7.0\ParsingServise.genruntimeconfig.cache
 C:\csharpvscode\ParsingServise\obj\Debug\net7.0\ref\ParsingServise.dll
+C:\csharpvscode\ParsingServise\bin\Debug\net7.0\AngleSharp.dll
+C:\csharpvscode\ParsingServise\obj\Debug\net7.0\ParsingServise.csproj.CopyComplete

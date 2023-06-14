@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "saNSQdB3PmlqTtnLB5P6BWTu4bii07UEFn2HrcEYtj3CXc2R7SUCIZ0ykZOjQHXEdSDXwfX/9aO2lqioWSOoQg==",
+  "dgSpecHash": "btt2REzlwM3WzMB9YVtL3w6Ab6lEibMVVo1iVRccunBwySFyHY2FELfTHgU3/Y1tIQHZU4GYogm4sqlBj1CzcA==",
   "success": true,
   "projectFilePath": "C:\\csharpvscode\\ParsingServise\\ParsingServise.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\admin\\.nuget\\packages\\anglesharp\\1.0.3\\anglesharp.1.0.3.nupkg.sha512",
+    "C:\\Users\\admin\\.nuget\\packages\\system.text.encoding.codepages\\7.0.0\\system.text.encoding.codepages.7.0.0.nupkg.sha512"
+  ],
   "logs": []
 }
