@@ -5,14 +5,14 @@ using AngleSharp.Dom;
 namespace ParsingService.ChipDipParseService;
 public class ChipDipParseService : IChipDipParseService 
 {
+    private HttpClient _httpClient;
     public ChipDipParseService()
     {
-
+        _httpClient = new HttpClient();
     }
 
-    public async Task<List<string>> GetProdictListHtml(string baseUrl, string queryMessage) //TODO доделать. спарсить хтмл
+    public async Task<List<string>> GetProdictListHtml(string baseUrl, string queryMessage)
     {
-        HttpClient client = new HttpClient();
         var config = Configuration.Default;
         var testList = new List<string>();
 
@@ -22,7 +22,7 @@ public class ChipDipParseService : IChipDipParseService
             string searchHtml = String.Empty;
             try
             {
-                searchHtml = client.GetStringAsync(baseUrl + queryMessage + $"&page={numberOfPage}").Result;
+                searchHtml = _httpClient.GetStringAsync(baseUrl + queryMessage + $"&page={numberOfPage}").Result;
 
                 using var context = BrowsingContext.New(config);
                 using var doc = await context.OpenAsync(req => req.Content(searchHtml));
@@ -32,12 +32,11 @@ public class ChipDipParseService : IChipDipParseService
                 
                 if(els == null)
                 {
-                    Console.WriteLine("Я ЕБЛАН НЕ УМЕЮ ПРОГРАММИРОВАТЬ");
+                    
                     break;
                 }
 
                 testList.AddRange(els.Select(el => el.Text()));
-                var s = els.Select(el => el.Text());
                 
                 numberOfPage++;
             }
