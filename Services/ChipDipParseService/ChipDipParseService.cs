@@ -1,4 +1,3 @@
-using System.Net;
 using AngleSharp;
 using AngleSharp.Dom;
 

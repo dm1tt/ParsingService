@@ -26,3 +26,4 @@ C:\csharpvscode\ParsingServise\obj\Debug\net7.0\ParsingServise.genruntimeconfig.
 C:\csharpvscode\ParsingServise\obj\Debug\net7.0\ref\ParsingServise.dll
 C:\csharpvscode\ParsingServise\bin\Debug\net7.0\AngleSharp.dll
 C:\csharpvscode\ParsingServise\obj\Debug\net7.0\ParsingServise.csproj.CopyComplete
+C:\csharpvscode\ParsingServise\bin\Debug\net7.0\Newtonsoft.Json.dll

@@ -1,6 +1,7 @@
-using AngleSharp;
+
 using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
+using ParsingService.Models;
 
 public class AmperoParseService : IAmperoParseService
 {
@@ -9,7 +10,7 @@ public class AmperoParseService : IAmperoParseService
     {
         _httpClient = new HttpClient();   
     }
-    public async Task<List<string>> GetProdictListHtml(string url, string queryMessage)
+    public async Task<List<Product>> GetProdictListHtml(string url, string queryMessage)
     {
         var productList = new List<string>();
         string html = await _httpClient.GetStringAsync(url + queryMessage);
@@ -33,7 +34,16 @@ public class AmperoParseService : IAmperoParseService
             numberOfPage++;
         }
         
-        return productList;
+        List<Product> products = productList.Select(name => new Product
+        {
+            ProductId = Guid.NewGuid().ToString(),
+            Name = name,
+            Description = null,
+            Image = null,
+            ProductType = null
+        }).ToList();
+
+        return products;
     }
 
     private int GetTotalResults(IDocument document)

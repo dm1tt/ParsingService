@@ -8,7 +8,8 @@
     ".NETCoreApp,Version=v7.0": {
       "ParsingServise/1.0.0": {
         "dependencies": {
-          "AngleSharp": "1.0.3"
+          "AngleSharp": "1.0.3",
+          "Newtonsoft.Json": "13.0.2"
         },
         "runtime": {
           "ParsingServise.dll": {}
@@ -22,6 +23,14 @@
           "lib/net7.0/AngleSharp.dll": {
             "assemblyVersion": "1.0.2.0",
             "fileVersion": "1.0.2.0"
+          }
+        }
+      },
+      "Newtonsoft.Json/13.0.2": {
+        "runtime": {
+          "lib/net6.0/Newtonsoft.Json.dll": {
+            "assemblyVersion": "13.0.0.0",
+            "fileVersion": "13.0.2.27524"
           }
         }
       },
@@ -40,6 +49,13 @@
       "sha512": "sha512-8U4PfAOpm5HO3v3wVrKrDTp55QZYK1jSJyjyU7k1Y0WpScjkpnCLcaTfoawu1poX69NGWjdGMYAyMIZHibN1tw==",
       "path": "anglesharp/1.0.3",
       "hashPath": "anglesharp.1.0.3.nupkg.sha512"
+    },
+    "Newtonsoft.Json/13.0.2": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-R2pZ3B0UjeyHShm9vG+Tu0EBb2lC8b0dFzV9gVn50ofHXh9Smjk6kTn7A/FdAsC8B5cKib1OnGYOXxRBz5XQDg==",
+      "path": "newtonsoft.json/13.0.2",
+      "hashPath": "newtonsoft.json.13.0.2.nupkg.sha512"
     },
     "System.Text.Encoding.CodePages/7.0.0": {
       "type": "package",

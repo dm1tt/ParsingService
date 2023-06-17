@@ -1,4 +1,7 @@
+using ParsingService.Models;
+
 public interface IAmperoParseService
 {
-    public Task<List<string>> GetProdictListHtml(string url, string queryMessage);
+    public Task<List<Product>> GetProdictListHtml(string url, string queryMessage);
 }
+
