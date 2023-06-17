@@ -13,5 +13,5 @@ public class ProductLink
 
     public int? Count { get; set; }
 
-    public List<Product>? Products { get; set ;}
+    public Product? Product { get; set ;}
 }

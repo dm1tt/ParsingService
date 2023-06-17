@@ -4,16 +4,16 @@ using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using ParsingService.Models;
 
-public class AmperoParseService : IAmperoParseService
+public class AmperoParseService : IAmperoParseService //TODO обсудить что такое count и зачем оно нужно
 {
     private HttpClient _httpClient;
     public AmperoParseService()
     {
         _httpClient = new HttpClient();   
     }
-    public async Task<List<Product>> GetProdictListHtml(string url, string queryMessage)
+    public async Task<List<ProductLink>> GetProdictListHtml(string url, string queryMessage)
     {
-        var productList = new List<Product>();
+        var productLinkList = new List<ProductLink>();
 
         string html = await _httpClient.GetStringAsync(url + queryMessage);
         var parser = new HtmlParser();
@@ -28,18 +28,19 @@ public class AmperoParseService : IAmperoParseService
             var productName = productNode.QuerySelector(".search-link")?.TextContent.Trim();
             var priceNode = productNode.QuerySelector("div.col-md-10.col-sm-8.col-xs-8.bottommargin-xs");
             var priceText = priceNode?.TextContent;
+            int priceValue = 0;
             if (priceText != null)
             {
                 var priceMatch = Regex.Match(priceText, @"Цена:\s*(\d+)");
                 if (priceMatch.Success)
                 {
-                    var priceValue = priceMatch.Groups[1].Value;
+                    priceValue = Convert.ToInt32(priceMatch.Groups[1].Value);
                 }
             }
 
-            var productLink = productNode.QuerySelector("a.search-link")?.GetAttribute("href");
+            var productUrl = productNode.QuerySelector("a.search-link")?.GetAttribute("href");
 
-            if (!string.IsNullOrEmpty(productName) && !string.IsNullOrEmpty(productLink))
+            if (!string.IsNullOrEmpty(productName) && !string.IsNullOrEmpty(productUrl))
             {
                 var product = new Product
                 {
@@ -47,17 +48,26 @@ public class AmperoParseService : IAmperoParseService
                     Name = productName,
                     Description = null,
                     Image = null,
-                    Link = productLink,
                     ProductType = null
                 };
+                var productLink = new ProductLink
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Link = productUrl,
+                    SiteName = "Ampero",
+                    Price = priceValue,
+                    InStock = null,
+                    Count = totalResults,
+                    Product = product
+                };
 
-                productList.Add(product);
+                productLinkList.Add(productLink);
             }
         }
 
         int numberOfPage = 2;
         
-        while(productList.Count < totalResults)
+        while(productLinkList.Count < totalResults)
         {
             html = await _httpClient.GetStringAsync(url + queryMessage + $"&page={numberOfPage}");
             doc = parser.ParseDocument(html);
@@ -66,9 +76,22 @@ public class AmperoParseService : IAmperoParseService
             foreach (var productNode in productNodes)
             {
                 var productName = productNode.QuerySelector(".search-link")?.TextContent.Trim();
-                var productLink = productNode.QuerySelector("a.search-link")?.GetAttribute("href");
 
-                if (!string.IsNullOrEmpty(productName) && !string.IsNullOrEmpty(productLink))
+                var priceNode = productNode.QuerySelector("div.col-md-10.col-sm-8.col-xs-8.bottommargin-xs");
+                var priceText = priceNode?.TextContent;
+                int priceValue = 0;
+                if (priceText != null)
+                {
+                    var priceMatch = Regex.Match(priceText, @"Цена:\s*(\d+)");
+                    if (priceMatch.Success)
+                    {
+                        priceValue = Convert.ToInt32(priceMatch.Groups[1].Value);
+                    }
+                }
+
+                var productUrl = productNode.QuerySelector("a.search-link")?.GetAttribute("href");
+
+                if (!string.IsNullOrEmpty(productName) && !string.IsNullOrEmpty(productUrl))
                 {
                     var product = new Product
                     {
@@ -76,28 +99,30 @@ public class AmperoParseService : IAmperoParseService
                         Name = productName,
                         Description = null,
                         Image = null,
-                        Link = productLink,
                         ProductType = null
                     };
 
-                    productList.Add(product);
+                    var productLink = new ProductLink
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Link = productUrl,
+                        SiteName = "Ampero",
+                        Price = priceValue,
+                        InStock = null,
+                        Count = totalResults,
+                        Product = product
+                    };
+
+                    productLinkList.Add(productLink);
                 }
             }
 
             numberOfPage++;
         }
         
-        List<Product> products = productList.Select(product => new Product
-        {
-            ProductId = product.ProductId,
-            Name = product.Name,
-            Description = null,
-            Image = null,
-            Link = product.Link,
-            ProductType = null
-        }).ToList();
+        
 
-        return products;
+        return productLinkList;
     }
 
     private int GetTotalResults(IDocument document)
