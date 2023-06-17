@@ -1,4 +1,3 @@
-C:\csharpvscode\ParsingServise\bin\Debug\net7.0\appsettings.Development.json
 C:\csharpvscode\ParsingServise\bin\Debug\net7.0\appsettings.json
 C:\csharpvscode\ParsingServise\bin\Debug\net7.0\ParsingServise.exe
 C:\csharpvscode\ParsingServise\bin\Debug\net7.0\ParsingServise.deps.json
