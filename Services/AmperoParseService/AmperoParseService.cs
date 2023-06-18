@@ -1,10 +1,9 @@
-
 using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using ParsingService.Models;
 
-public class AmperoParseService : IAmperoParseService //TODO обсудить что такое count и зачем оно нужно
+public class AmperoParseService : IAmperoParseService //TODO добавить логику для inStock
 {
     private HttpClient _httpClient;
     public AmperoParseService()
@@ -38,6 +37,17 @@ public class AmperoParseService : IAmperoParseService //TODO обсудить ч
                 }
             }
 
+            int productCount = 0;
+
+            var productCountText = productNode.QuerySelector("span.value")?.TextContent;
+            if(productCountText != null)
+            {
+                var productCountMatch = Regex.Match(productCountText, @"в наличии \s*(\d+)");
+                if(productCountMatch.Success)
+                {
+                    productCount = Convert.ToInt32(productCountMatch.Groups[1].Value);
+                }
+            }
             var productUrl = productNode.QuerySelector("a.search-link")?.GetAttribute("href");
 
             if (!string.IsNullOrEmpty(productName) && !string.IsNullOrEmpty(productUrl))
@@ -57,7 +67,7 @@ public class AmperoParseService : IAmperoParseService //TODO обсудить ч
                     SiteName = "Ampero",
                     Price = priceValue,
                     InStock = null,
-                    Count = totalResults,
+                    Count = productCount,
                     Product = product
                 };
 
@@ -89,6 +99,17 @@ public class AmperoParseService : IAmperoParseService //TODO обсудить ч
                     }
                 }
 
+                int productCount = 0;
+                var productCountText = productNode.QuerySelector("span.value")?.TextContent;
+                if(productCountText != null)
+                {
+                    var productCountMatch = Regex.Match(productCountText, @"в наличии \s*(\d+)");
+                    if(productCountMatch.Success)
+                    {
+                        productCount = Convert.ToInt32(productCountMatch.Groups[1].Value);
+                    }
+                }
+
                 var productUrl = productNode.QuerySelector("a.search-link")?.GetAttribute("href");
 
                 if (!string.IsNullOrEmpty(productName) && !string.IsNullOrEmpty(productUrl))
@@ -109,7 +130,7 @@ public class AmperoParseService : IAmperoParseService //TODO обсудить ч
                         SiteName = "Ampero",
                         Price = priceValue,
                         InStock = null,
-                        Count = totalResults,
+                        Count = productCount,
                         Product = product
                     };
 
@@ -119,8 +140,6 @@ public class AmperoParseService : IAmperoParseService //TODO обсудить ч
 
             numberOfPage++;
         }
-        
-        
 
         return productLinkList;
     }
