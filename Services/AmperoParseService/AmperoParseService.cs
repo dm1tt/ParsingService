@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
@@ -5,6 +6,7 @@ using ParsingService.Models;
 
 public class AmperoParseService : IAmperoParseService //TODO добавить логику для inStock
 {
+    
     private HttpClient _httpClient;
     public AmperoParseService()
     {
@@ -12,9 +14,11 @@ public class AmperoParseService : IAmperoParseService //TODO добавить л
     }
     public async Task<List<ProductLink>> GetProdictListHtml(string url, string queryMessage)
     {
+        var sw = new Stopwatch();
+        sw.Start();
         var productLinkList = new List<ProductLink>();
 
-        string html = await _httpClient.GetStringAsync(url + queryMessage);
+        string html = await _httpClient.GetStringAsync(url + queryMessage + "&limit=100");
         var parser = new HtmlParser();
         var doc = parser.ParseDocument(html);
 
@@ -79,7 +83,7 @@ public class AmperoParseService : IAmperoParseService //TODO добавить л
         
         while(productLinkList.Count < totalResults)
         {
-            html = await _httpClient.GetStringAsync(url + queryMessage + $"&page={numberOfPage}");
+            html = await _httpClient.GetStringAsync(url + queryMessage + $"&page={numberOfPage}" + "&limit=100");
             doc = parser.ParseDocument(html);
             productNodes = doc.QuerySelectorAll(".mse2-row");
 
@@ -140,7 +144,8 @@ public class AmperoParseService : IAmperoParseService //TODO добавить л
 
             numberOfPage++;
         }
-
+        sw.Stop();
+        Console.WriteLine(sw.Elapsed);
         return productLinkList;
     }
 
