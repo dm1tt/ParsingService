@@ -4,15 +4,15 @@ using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using ParsingService.Models;
 
-public class AmperoParseService : IAmperoParseService //TODO добавить логику для inStock
+public class AmperoParseService : IParseService //TODO добавить логику для inStock
 {
     
-    private HttpClient _httpClient;
+    private readonly HttpClient _httpClient;
     public AmperoParseService()
     {
         _httpClient = new HttpClient();   
     }
-    public async Task<List<ProductLink>> GetProdictListHtml(string url, string queryMessage)
+    public async Task<List<ProductLink>> GetProdictLinkList(string url, string queryMessage)
     {
         var sw = new Stopwatch();
         sw.Start();
