@@ -1,34 +1,41 @@
 
+using System.Diagnostics;
 using System.Text.RegularExpressions;
+using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using ParsingService.Models;
 
 public class AmperkotParseService
 {
-    private readonly HttpClient _httpClient;
+    private readonly HttpClient _httpClient; //TODO ПОФИКСИТЬ ТРАБЛЫ С ЦЕНОЙ
     public AmperkotParseService()
     {
         _httpClient = new HttpClient();
     }
-    public async Task<List<Product>> GetProdictLinkList(string url, string queryMessage)
+    public async Task<List<ProductLink>> GetProdictLinkList(string url, string queryMessage)
     {
-        var productList = new List<Product>();
+        var sw = new Stopwatch();
+        sw.Start();
+        var productLinkList = new List<ProductLink>();
 
         string html = await _httpClient.GetStringAsync(url + queryMessage);
         var parser = new HtmlParser();
         var doc = parser.ParseDocument(html);
+        int totalResults = GetTotalResults(doc);
 
         var productNodes = doc.QuerySelectorAll(".product-item");
         foreach(var productNode in productNodes)
         {
             var productName = productNode.QuerySelector(".body")?.TextContent.Trim();
             var priceNode = productNode.QuerySelector(".price-current.pull-right");
-            var priceText = priceNode?.TextContent.Trim();
+            var priceText = priceNode?.TextContent;
             int priceValue = 0;
             
             if(priceText != null)
             {
-                priceValue = Convert.ToInt32(priceText?.Replace("руб.", "").Trim());
+                string cleanedPrice = priceText.Replace("руб.", "").Replace(" ", "").Trim();
+                cleanedPrice = Regex.Replace(cleanedPrice, @"\s+", "");
+                int.TryParse(cleanedPrice, out priceValue);
             }
             
             if(!string.IsNullOrEmpty(productName))
@@ -41,9 +48,29 @@ public class AmperkotParseService
                     Image = null,
                     ProductType = null
                 };
-                productList.Add(product);
+                var productLink = new ProductLink
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Link = null,
+                    SiteName = "Amperkot",
+                    Price = priceValue,
+                    InStock = null,
+                    Count = null,
+                    Product = product
+                };
+                productLinkList.Add(productLink);
             }
         }
-        return productList;
+        sw.Stop();
+        return productLinkList;
     }
+
+    private int GetTotalResults(IDocument document)
+    {
+        var totalResultsElements = document?.QuerySelector("div.result-counter")?.TextContent
+                                            .Trim()
+                                            .Replace("Показано 1-21 из ", "");
+        return totalResultsElements != null ? int.Parse(totalResultsElements) : 0;
+    }
+
 }
