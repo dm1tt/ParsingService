@@ -1,20 +1,24 @@
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using ParsingService.Models;
 
-public class AmperoParseService : IAmperoParseService //TODO добавить логику для inStock
+public class AmperoParseService : IParseService //TODO пофиксить парсинг цены. Когда ценга > 1000 парсит только первую цифру
 {
-    private HttpClient _httpClient;
+    
+    private readonly HttpClient _httpClient;
     public AmperoParseService()
     {
         _httpClient = new HttpClient();   
     }
-    public async Task<List<ProductLink>> GetProdictListHtml(string url, string queryMessage)
+    public async Task<List<ProductLink>> GetProdictLinkList(string url, string queryMessage)
     {
+        var sw = new Stopwatch();
+        sw.Start();
         var productLinkList = new List<ProductLink>();
 
-        string html = await _httpClient.GetStringAsync(url + queryMessage);
+        string html = await _httpClient.GetStringAsync(url + queryMessage + "&limit=100");
         var parser = new HtmlParser();
         var doc = parser.ParseDocument(html);
 
@@ -60,13 +64,18 @@ public class AmperoParseService : IAmperoParseService //TODO добавить л
                     Image = null,
                     ProductType = null
                 };
+                bool productInStock = false;
+                if(productCount != 0)
+                {
+                    productInStock = true;
+                }
                 var productLink = new ProductLink
                 {
                     Id = Guid.NewGuid().ToString(),
                     Link = productUrl,
                     SiteName = "Ampero",
                     Price = priceValue,
-                    InStock = null,
+                    InStock = productInStock,
                     Count = productCount,
                     Product = product
                 };
@@ -79,13 +88,14 @@ public class AmperoParseService : IAmperoParseService //TODO добавить л
         
         while(productLinkList.Count < totalResults)
         {
-            html = await _httpClient.GetStringAsync(url + queryMessage + $"&page={numberOfPage}");
+            html = await _httpClient.GetStringAsync(url + queryMessage + $"&page={numberOfPage}" + "&limit=100");
             doc = parser.ParseDocument(html);
             productNodes = doc.QuerySelectorAll(".mse2-row");
 
             foreach (var productNode in productNodes)
             {
                 var productName = productNode.QuerySelector(".search-link")?.TextContent.Trim();
+                var productUrl = productNode.QuerySelector("a.search-link")?.GetAttribute("href");
 
                 var priceNode = productNode.QuerySelector("div.col-md-10.col-sm-8.col-xs-8.bottommargin-xs");
                 var priceText = priceNode?.TextContent;
@@ -110,7 +120,6 @@ public class AmperoParseService : IAmperoParseService //TODO добавить л
                     }
                 }
 
-                var productUrl = productNode.QuerySelector("a.search-link")?.GetAttribute("href");
 
                 if (!string.IsNullOrEmpty(productName) && !string.IsNullOrEmpty(productUrl))
                 {
@@ -122,14 +131,18 @@ public class AmperoParseService : IAmperoParseService //TODO добавить л
                         Image = null,
                         ProductType = null
                     };
-
+                    bool productInStock = false;
+                    if(productCount != 0)
+                    {
+                        productInStock = true;
+                    }
                     var productLink = new ProductLink
                     {
                         Id = Guid.NewGuid().ToString(),
                         Link = productUrl,
                         SiteName = "Ampero",
                         Price = priceValue,
-                        InStock = null,
+                        InStock = productInStock,
                         Count = productCount,
                         Product = product
                     };
@@ -140,7 +153,8 @@ public class AmperoParseService : IAmperoParseService //TODO добавить л
 
             numberOfPage++;
         }
-
+        sw.Stop();
+        Console.WriteLine(sw.Elapsed);
         return productLinkList;
     }
 

@@ -5,7 +5,7 @@ var a = new AmperoParseService();
 var baseUrl = builder.Configuration.GetValue<string>("BaseUrls:AmperoGlobalSearchBaseUrl");
 app.MapGet("/", async () => 
 {
-    var result = await a.GetProdictListHtml(baseUrl!, "ATMEGA8A-PU");
+    var result = await a.GetProdictLinkList(baseUrl!, "arduino");
 
     return result;
 }
