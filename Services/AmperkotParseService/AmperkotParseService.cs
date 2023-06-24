@@ -27,6 +27,7 @@ public class AmperkotParseService
         foreach(var productNode in productNodes)
         {
             var productName = productNode.QuerySelector(".body")?.TextContent.Trim();
+            var productUrl = productNode.QuerySelector(".thumbnail_container a")?.GetAttribute("href"); 
             var priceNode = productNode.QuerySelector(".price-current.pull-right");
             var priceText = priceNode?.TextContent;
             int priceValue = 0;
@@ -51,7 +52,7 @@ public class AmperkotParseService
                 var productLink = new ProductLink
                 {
                     Id = Guid.NewGuid().ToString(),
-                    Link = null,
+                    Link = productUrl,
                     SiteName = "Amperkot",
                     Price = priceValue,
                     InStock = null,
@@ -60,8 +61,14 @@ public class AmperkotParseService
                 };
                 productLinkList.Add(productLink);
             }
+
+            // while(productLinkList.Count < totalResults)
+            // {
+
+            // }
         }
         sw.Stop();
+        Console.WriteLine(sw.Elapsed);
         return productLinkList;
     }
 

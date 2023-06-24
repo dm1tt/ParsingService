@@ -90,6 +90,7 @@ public class AmperoParseService : IParseService //TODO добавить логи
             foreach (var productNode in productNodes)
             {
                 var productName = productNode.QuerySelector(".search-link")?.TextContent.Trim();
+                var productUrl = productNode.QuerySelector("a.search-link")?.GetAttribute("href");
 
                 var priceNode = productNode.QuerySelector("div.col-md-10.col-sm-8.col-xs-8.bottommargin-xs");
                 var priceText = priceNode?.TextContent;
@@ -114,7 +115,6 @@ public class AmperoParseService : IParseService //TODO добавить логи
                     }
                 }
 
-                var productUrl = productNode.QuerySelector("a.search-link")?.GetAttribute("href");
 
                 if (!string.IsNullOrEmpty(productName) && !string.IsNullOrEmpty(productUrl))
                 {
