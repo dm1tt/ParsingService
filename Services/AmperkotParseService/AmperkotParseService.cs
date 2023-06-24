@@ -30,13 +30,20 @@ public class AmperkotParseService
             var productUrl = productNode.QuerySelector(".thumbnail_container a")?.GetAttribute("href"); 
             var priceNode = productNode.QuerySelector(".price-current.pull-right");
             var priceText = priceNode?.TextContent;
-            int priceValue = 0;
             
+            int priceValue = 0;
             if(priceText != null)
             {
                 string cleanedPrice = priceText.Replace("руб.", "").Replace(" ", "").Trim();
                 cleanedPrice = Regex.Replace(cleanedPrice, @"\s+", "");
                 int.TryParse(cleanedPrice, out priceValue);
+            }
+
+            bool productInStock = true;
+            var productInStockNode = productNode.QuerySelector("div.ribbon.green")?.TextContent;
+            if(productInStockNode == null)
+            {
+                productInStock = false;
             }
             
             if(!string.IsNullOrEmpty(productName) && !string.IsNullOrEmpty(productUrl))
@@ -55,7 +62,7 @@ public class AmperkotParseService
                     Link = productUrl,
                     SiteName = "Amperkot",
                     Price = priceValue,
-                    InStock = null,
+                    InStock = productInStock,
                     Count = null,
                     Product = product
                 };
@@ -83,7 +90,14 @@ public class AmperkotParseService
                     cleanedPrice = Regex.Replace(cleanedPrice, @"\s+", "");
                     int.TryParse(cleanedPrice, out priceValue);
                 }
-                
+
+                bool productInStock = true;
+                var productInStockNode = productNode.QuerySelector("div.ribbon.green")?.TextContent;
+                if(productInStockNode == null)
+                {
+                    productInStock = false;
+                }
+
                 if(!string.IsNullOrEmpty(productName))
                 {
                     var product = new Product
@@ -100,7 +114,7 @@ public class AmperkotParseService
                         Link = productUrl,
                         SiteName = "Amperkot",
                         Price = priceValue,
-                        InStock = null,
+                        InStock = productInStock,
                         Count = null,
                         Product = product
                     };
