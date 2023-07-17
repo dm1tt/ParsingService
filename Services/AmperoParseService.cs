@@ -4,7 +4,7 @@ using AngleSharp.Dom;
 using AngleSharp.Html.Parser;
 using ParsingService.Models;
 
-public class AmperoParseService : IParseService //TODO добавить логику для inStock
+public class AmperoParseService : IParseService //TODO пофиксить парсинг цены. Когда ценга > 1000 парсит только первую цифру
 {
     
     private readonly HttpClient _httpClient;
@@ -12,13 +12,13 @@ public class AmperoParseService : IParseService //TODO добавить логи
     {
         _httpClient = new HttpClient();   
     }
-    public async Task<List<ProductLink>> GetProdictLinkList(string url, string queryMessage)
+    public async Task<List<ProductLink>> GetProdictLinkListAsync(string url, string queryMessage)
     {
         var sw = new Stopwatch();
         sw.Start();
         var productLinkList = new List<ProductLink>();
 
-        string html = await _httpClient.GetStringAsync(url + queryMessage + "&limit=100");
+        string html = await _httpClient.GetStringAsync(url + "search?query=" + queryMessage + "&limit=100");
         var parser = new HtmlParser();
         var doc = parser.ParseDocument(html);
 
@@ -31,13 +31,14 @@ public class AmperoParseService : IParseService //TODO добавить логи
             var productName = productNode.QuerySelector(".search-link")?.TextContent.Trim();
             var priceNode = productNode.QuerySelector("div.col-md-10.col-sm-8.col-xs-8.bottommargin-xs");
             var priceText = priceNode?.TextContent;
+
             int priceValue = 0;
             if (priceText != null)
             {
-                var priceMatch = Regex.Match(priceText, @"Цена:\s*(\d+)");
+                var priceMatch = Regex.Match(priceText, @"Цена:\s*(\d+(\s\d{3})*)\s*руб\.");
                 if (priceMatch.Success)
                 {
-                    priceValue = Convert.ToInt32(priceMatch.Groups[1].Value);
+                    priceValue = Convert.ToInt32(priceMatch.Groups[1].Value.Replace(" ", ""));
                 }
             }
 
@@ -64,13 +65,18 @@ public class AmperoParseService : IParseService //TODO добавить логи
                     Image = null,
                     ProductType = null
                 };
+                bool productInStock = false;
+                if(productCount != 0)
+                {
+                    productInStock = true;
+                }
                 var productLink = new ProductLink
                 {
                     Id = Guid.NewGuid().ToString(),
                     Link = productUrl,
                     SiteName = "Ampero",
                     Price = priceValue,
-                    InStock = null,
+                    InStock = productInStock,
                     Count = productCount,
                     Product = product
                 };
@@ -83,7 +89,7 @@ public class AmperoParseService : IParseService //TODO добавить логи
         
         while(productLinkList.Count < totalResults)
         {
-            html = await _httpClient.GetStringAsync(url + queryMessage + $"&page={numberOfPage}" + "&limit=100");
+            html = await _httpClient.GetStringAsync(url + "search?query=" + queryMessage + $"&page={numberOfPage}&limit=100");
             doc = parser.ParseDocument(html);
             productNodes = doc.QuerySelectorAll(".mse2-row");
 
@@ -97,10 +103,10 @@ public class AmperoParseService : IParseService //TODO добавить логи
                 int priceValue = 0;
                 if (priceText != null)
                 {
-                    var priceMatch = Regex.Match(priceText, @"Цена:\s*(\d+)");
+                    var priceMatch = Regex.Match(priceText, @"Цена:\s*(\d+(\s\d{3})*)\s*руб\.");
                     if (priceMatch.Success)
                     {
-                        priceValue = Convert.ToInt32(priceMatch.Groups[1].Value);
+                        priceValue = Convert.ToInt32(priceMatch.Groups[1].Value.Replace(" ", ""));
                     }
                 }
 
@@ -127,13 +133,19 @@ public class AmperoParseService : IParseService //TODO добавить логи
                         ProductType = null
                     };
 
+                    bool productInStock = false;
+                    if(productCount != 0)
+                    {
+                        productInStock = true;
+                    }
+
                     var productLink = new ProductLink
                     {
                         Id = Guid.NewGuid().ToString(),
                         Link = productUrl,
                         SiteName = "Ampero",
                         Price = priceValue,
-                        InStock = null,
+                        InStock = productInStock,
                         Count = productCount,
                         Product = product
                     };
@@ -153,5 +165,11 @@ public class AmperoParseService : IParseService //TODO добавить логи
     {
         var totalResultsElements = document.QuerySelector("#mse2_total");
         return totalResultsElements != null ? int.Parse(totalResultsElements.TextContent) : 0;
+    }
+
+    public async Task<ProductLink> GetOneProductLinkAsync(string baseUrl, string productUrl)
+    {
+        string html = await _httpClient.GetStringAsync(baseUrl + productUrl);
+        return null!;
     }
 }

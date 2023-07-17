@@ -1,17 +1,25 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace ParsingService.Models;
 public class ProductLink
 {
-    public required string Id { get; set; }
-    
-    public string? Link { get; set; }
+    [Required]
+    public string Id { get; set; } = Guid.NewGuid().ToString();
 
-    public string? SiteName { get; set; }
+    [Required]
+    public string Link { get; set; }
 
-    public int? Price { get; set; }
+    [Required]
+    public string SiteName { get; set; }
 
-    public bool? InStock { get; set; }
+    public int Price { get; set; }
 
-    public int? Count { get; set; }
+    public string ProductId { get; set; }
 
-    public Product? Product { get; set ;}
+    public bool IsStock { get; set; }
+
+    public int Count { get; set; }
+
+    public Product Product { get; set; } = null!;
+
 }

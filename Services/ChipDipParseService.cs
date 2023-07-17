@@ -11,7 +11,7 @@ public class ChipDipParseService : IParseService
         _httpClient = new HttpClient();
     }
 
-    public async Task<List<ProductLink>> GetProdictLinkList(string url, string queryMessage)
+    public async Task<List<ProductLink>> GetProdictLinkListAsync(string url, string queryMessage)
     {
         var config = Configuration.Default;
         var testList = new List<string>();
@@ -22,7 +22,7 @@ public class ChipDipParseService : IParseService
             string searchHtml = String.Empty;
             try
             {
-                searchHtml = _httpClient.GetStringAsync(url + queryMessage + $"&page={numberOfPage}").Result;
+                searchHtml = _httpClient.GetStringAsync(url + "search?searchtext="+ queryMessage + $"&page={numberOfPage}").Result;
 
                 using var context = BrowsingContext.New(config);
                 using var doc = await context.OpenAsync(req => req.Content(searchHtml));
@@ -51,6 +51,12 @@ public class ChipDipParseService : IParseService
 
         }
 
+        return null!;
+    }
+
+    public async Task<ProductLink> GetOneProductLinkAsync(string baseUrl, string productUrl)
+    {
+        string html = await _httpClient.GetStringAsync(baseUrl + productUrl);
         return null!;
     }
 
