@@ -1,5 +1,0 @@
-/.vscode/
-/bin/*
-/appsettings.Development.json
-/obj/* 
-/.gitignore
